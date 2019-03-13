@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head></h:head>
+<body>
+
+	<ui:composition template="/WEB-INF/templates/master.xhtml">
+		<ui:define name="content">
+			<h:form id="frmGen" enctype="multipart/form-data">
+				<p:growl id="menGen" />
+				<p:toolbar>
+					<f:facet name="right">
+						<p:commandButton value="Nuevo" icon="ui-icon-document"
+							actionListener="#{customerController.resetForm()}" update="@form" />
+						<p:commandButton value="Guardar" icon="ui-icon-disk"
+							process="@this :frmGen:panGriCus"
+							actionListener="#{customerController.saveCustomer()}"
+							update=":frmGen:menGen :frmGen:datTabCus :frmGen:panGriCus"
+							ajax="false" />
+
+						<p:commandButton value="Editar" icon="ui-icon-pencil"
+							process="@this"
+							actionListener="#{customerController.editCustomer()}"
+							update=":frmGen:menGen :frmGen:panGriCus"/>
+					</f:facet>
+					<f:facet name="left">
+						<p:outputLabel value="Clientes" />
+					</f:facet>
+				</p:toolbar>
+				<p:panelGrid id="panGriCus" columns="4" style="width:100%">
+					<p:outputLabel value="Nombre:" for="txtNombre" />
+					<p:inputText id="txtNombre" required="true" style="width:90%"
+						maxlength="50" value="#{customerController.customer.name}" />
+					<p:outputLabel value="DNI" for="txtDni" />
+					<p:inputText id="txtDni" required="true" style="width:90%"
+						maxlength="8" value="#{customerController.customer.dni}" />
+					<p:outputLabel value="Direccion" for="txtDireccion" />
+					<p:inputText id="txtDireccion" required="true" style="width:90%"
+						maxlength="200" value="#{customerController.customer.address}" />
+					
+					<p:outputLabel value="Foto" />
+					<p:fileUpload value="#{customerController.photo}" mode="simple"
+						skinSimple="true" label="Examinar..." />
+
+					<h:column rendered="#{customerController.customer.id != 0}" />
+					<p:graphicImage value="/imagen/#{customerController.customer.id}"
+						width="120" height="120"
+						rendered="#{customerController.customer.id != 0}" />
+						
+					<p:outputLabel for="cboPais" value="Pais" />
+					<p:selectOneMenu id="cboPais"
+						value="#{customerController.customer.country}" filter="true"
+						filterMatchMode="contains" required="true">
+						<f:selectItem noSelectionOption="true" value="#{null}"
+							itemLabel="--Seleccione--" />
+						<f:selectItems value="#{country.countrys}" var="c"
+							itemLabel="#{c}" itemValue="#{c}" />
+					</p:selectOneMenu>
+					
+
+					
+				</p:panelGrid>
+				<br></br>
+
+				<!-- <p:panelGrid id="panGriBusProdTy" columns="3" style="width:100%">
+							<p:outputLabel value="Buscar Por:" for="txtBusPor" />
+							<p:inputText id="txtBusPor" value="#{productTypeController.filter}" />
+							<p:commandButton icon="ui-icon-search"
+								process="@this :frmGen:panGriBusProdTy"
+								actionListener="#{productTypeController.filterProductType()}"
+								update=":frmGen:menGen :frmGen:datTabTipPro :frmGen:panGriBusProdTy" />
+				</p:panelGrid> -->
+				<br></br>
+
+				<p:dataTable id="datTabCus"
+					emptyMessage="No existen clientes registrados"
+					value="#{customerController.customers}" var="c" paginator="true"
+					rows="10" selectionMode="single" rowKey="#{c.id}">
+					<f:facet name="header">
+						<p:outputLabel value="Lista de Clientes" />
+					</f:facet>
+					<p:ajax event="rowSelect"
+						listener="#{customerController.selecCustomer}" />
+					<p:column headerText="Id">
+						<p:outputLabel value="#{c.id}" />
+					</p:column>
+					<p:column headerText="Nombre">
+						<p:outputLabel value="#{c.name}" />
+					</p:column>
+					<p:column headerText="Dni">
+						<p:outputLabel value="#{c.dni}" />
+					</p:column>
+					<p:column headerText="Direccion">
+						<p:outputLabel value="#{c.address}" />
+					</p:column>
+					<p:column headerText="Pais">
+						<p:outputLabel value="#{c.country}" />
+					</p:column>
+					
+
+				</p:dataTable>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>

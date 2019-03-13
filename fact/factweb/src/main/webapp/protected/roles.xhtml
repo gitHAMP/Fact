@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head></h:head>
+<body>
+
+	<ui:composition template="/WEB-INF/templates/master.xhtml">
+		<ui:define name="content">
+			<h:form id="frmGen">
+				<p:growl id="menGen" />
+				<p:toolbar>
+					<f:facet name="right">
+						<p:commandButton value="Nuevo" icon="ui-icon-document"
+							actionListener="#{rolController.resetForm()}" update="@form" />
+						<p:commandButton value="Guardar" icon="ui-icon-disk"
+							process="@this :frmGen:panGriRol"
+							actionListener="#{rolController.saveRole()}"
+							update=":frmGen:menGen :frmGen:datTabRol :frmGen:panGriRol" />
+						<p:commandButton value="Editar" icon="ui-icon-pencil"
+							process="@this" actionListener="#{rolController.editRol()}"
+							update=":frmGen:menGen :frmGen:panGriRol" />
+					</f:facet>
+				</p:toolbar>
+				<p:panelGrid id="panGriRol" columns="2" style="width:100%">
+					<p:outputLabel value="Tipo" for="txtTip" />
+					<p:inputText id="txtTip" required="true" maxlength="45"
+						value="#{rolController.rol.type}" />
+				</p:panelGrid>
+				<br></br>
+
+
+				<p:dataTable id="datTabRol"
+					emptyMessage="No existen roles registrados"
+					value="#{rolController.roles}" var="r" paginator="true" rows="10"
+					selectionMode="single" rowKey="#{r.id}">
+					<f:facet name="header">
+						<p:outputLabel value="Lista de Roles" />
+					</f:facet>
+					<p:ajax event="rowSelect" listener="#{rolController.selecRol}" />
+					<p:column headerText="Id">
+						<p:outputLabel value="#{r.id}" />
+					</p:column>
+					<p:column headerText="Tipo">
+						<p:outputLabel value="#{r.type}" />
+					</p:column>
+				</p:dataTable>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>

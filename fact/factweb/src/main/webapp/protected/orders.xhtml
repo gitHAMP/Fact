@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head></h:head>
+<body>
+
+	<ui:composition template="/WEB-INF/templates/master.xhtml">
+		<ui:define name="content">
+			<h:form id="frmGen">
+				<p:growl id="menGen" />
+				<p:toolbar>
+					<f:facet name="right">
+						<p:commandButton value="Nuevo" icon="icon_document"
+							process="@this" actionListener="#{orderController.resetForm()}"
+							update="@form" />
+						<p:commandButton value="Guardar" icon="icon_save"
+							process="@this :frmGen:tabVieGen:panGriCabFac"
+							actionListener="#{orderController.saveOrder()}"
+							update=":frmGen:menGen :frmGen:tabVieGen:panGriCabFac" />
+						<p:commandButton value="Anular" icon="icon_cancel"
+							onclick="PF('diaConAnuFac').show();" />
+						<p:commandButton value="Eliminar" icon="icon_delete"
+							onclick="PF('diaConFac').show();" />
+					</f:facet>
+					<f:facet name="left">
+						<p:outputLabel value="Administración de Ordenes" />
+					</f:facet>
+				</p:toolbar>
+				<br></br>
+				<p:tabView id="tabVieGen">
+					<p:tab title="Generar Orden">
+						<p:panelGrid id="panGriCabFac" columns="4" style="width:100%">
+
+							<p:outputLabel value="Fecha:" />
+							<p:calendar id="calFecFac"
+								value="#{orderController.order.createAt}" />
+							<p:outputLabel for="txtIdeCli" value="Dni Cliente:" />
+							<h:panelGroup>
+								<p:inputText id="txtIdeCli" maxlength="13" required="true"
+									value="#{orderController.customer.dni}" />
+								<p:commandButton icon="ui-icon-search"
+									process="@this :frmGen:tabVieGen:txtIdeCli"
+									actionListener="#{orderController.findCustomerByDni()}"
+									update=":frmGen:tabVieGen:txtNomCli
+							:frmGen:tabVieGen:txaDirCli 
+							:frmGen:menGen" />
+							</h:panelGroup>
+							<p:outputLabel value="Nombres:" />
+							<p:inputText id="txtNomCli" readonly="true"
+								value="#{orderController.customer.name}" />
+							<p:outputLabel value="Dirección" />
+							<p:inputTextarea id="txaDirCli" readonly="true"
+								value="#{orderController.customer.address}" />
+
+						</p:panelGrid>
+						<br></br>
+						<p:toolbar>
+							<f:facet name="right">
+								<p:commandButton value="Añadir" icon="ui-icon-plus"
+									onclick="PF('diaAnaDetFac').show();" />
+								<p:commandButton value="Eliminar" icon="ui-icon-trash"
+									onclick="PF('diaConEliDetFac').show();" />
+							</f:facet>
+						</p:toolbar>
+						<p:dataTable id="datTabDetFac"
+							value="#{orderController.detailOrders}" var="detOr"
+							selectionMode="single" rowKey="#{detOr.id}">
+							<p:ajax event="rowSelect"
+								listener="#{orderController.detailOrderSel}" />
+							<p:column headerText="Producto">
+								<p:outputLabel value="#{detOr.product.name}" />
+							</p:column>
+							<p:column headerText="Cantidad">
+								<p:outputLabel value="#{detOr.quantity}" />
+							</p:column>
+							<p:column headerText="Precio">
+								<p:outputLabel value="#{detOr.price}" />
+							</p:column>
+							<p:column headerText="SubTotal">
+								<p:outputLabel value="#{detOr.subTotal}" />
+							</p:column>
+						</p:dataTable>
+
+
+						<p:dialog widgetVar="diaAnaDetFac" header="Añadir Detalle"
+							width="450" height="400">
+							<p:toolbar>
+								<f:facet name="right">
+									<p:commandButton value="Guardar"
+										process="@this :frmGen:tabVieGen:panGriAnaDetFac"
+										actionListener="#{orderController.addDetail()}"
+										update=":frmGen:tabVieGen:panGriAnaDetFac :frmGen:tabVieGen:datTabDetFac :frmGen:menGen"
+										oncomplete="PF('diaAnaDetFac').hide();" />
+									<p:commandButton value="Cancelar" process="@this"
+										update=":frmGen:tabVieGen:panGriAnaDetFac"
+										oncomplete="PF('diaAnaDetFac').hide();" />
+								</f:facet>
+							</p:toolbar>
+							<br />
+
+							<p:panelGrid id="panGriAnaDetFac" columns="2" style="width:100%">
+
+								<p:outputLabel value="Producto:" for="atxtProDetFac" />
+
+								<p:selectOneMenu id="atxtProDetFac" required="true"
+									effect="drop" value="#{orderController.product}"
+									converter="omnifaces.SelectItemsConverter" filter="true"
+									filterMatchMode="contains">
+									<f:selectItem itemLabel="Seleccione una opción"
+										noSelectionOption="true" itemValue="" />
+									<f:selectItems value="#{orderController.products}" var="pro"
+										itemLabel="#{pro.name}" itemValue="#{pro}" />
+									<p:ajax event="itemSelect"
+										listener="#{orderController.updatePriceProduct}"
+										update="frmGen:tabVieGen:spiPreProDetFac" />
+								</p:selectOneMenu>
+
+								<p:outputLabel value="Precio:" for="spiPreProDetFac" />
+								<p:inputText id="spiPreProDetFac" readonly="true"
+									value="#{orderController.detailOrder.price}" />
+								<p:outputLabel value="Cantidad:" for="spiCanDetFac" />
+								<p:inputText id="spiCanDetFac" required="true"
+									value="#{orderController.detailOrder.quantity}">
+									<p:ajax event="keyup"
+										listener="#{orderController.calculateSutTotalDetail}"
+										update=":frmGen:tabVieGen:spiTotDetFac" />
+								</p:inputText>
+								<p:outputLabel value="Total:" for="spiTotDetFac" />
+								<p:spinner id="spiTotDetFac" readonly="true"
+									value="#{orderController.detailOrder.subTotal}" />
+
+							</p:panelGrid>
+						</p:dialog>
+					</p:tab>
+					<p:tab title="Listar Facturas">
+						<p:panelGrid id="panGriBusFac" columns="4" style="width:100%">
+							<p:outputLabel value="Buscar Por:" for="txtBusPor" />
+							<p:selectOneMenu id="cmbBusPor"
+								value="#{orderController.searchBy}">
+								<f:selectItem itemLabel="Seleccione una opción" />
+								<f:selectItem itemLabel="CLIENTE" itemValue="CLIENTE" />
+								<f:selectItem itemLabel="ESTADO" itemValue="ESTADO" />
+								<f:selectItem itemLabel="FECHA" itemValue="FECHA" />
+							</p:selectOneMenu>
+							<p:inputText id="txtBusPor" value="#{orderController.valueSearch}" />
+							<p:commandButton icon="ui-icon-search"
+								process="@this :frmGen:tabVieGen:panGriBusFac"
+								actionListener="#{orderController.searhOrder}"
+								update=":frmGen:menGen :frmGen:tabVieGen:datTabFac" />
+						</p:panelGrid>
+						<br></br>
+						<p:dataTable id="datTabFac" value="#{orderController.orders}"
+							var="o" selectionMode="single" rowKey="#{o.id}">
+							<p:ajax event="rowSelect"
+								listener="#{orderController.selectOrder}" />
+							
+							<p:column headerText="Fecha">
+								<p:outputLabel value="#{o.createAt}">
+									<f:convertDateTime pattern="yyyy-MM-dd" />
+								</p:outputLabel>
+							</p:column>
+							<p:column headerText="Cliente">
+								<p:outputLabel
+									value="#{o.customer.name}" />
+							</p:column>
+							<p:column headerText="Total">
+								<p:outputLabel value="#{o.total}" />
+							</p:column>
+							<p:column headerText="Detalles">
+								<p:dataList value="#{o.items}" var="detOr">
+									<p:outputLabel value="#{detOr}" />
+								</p:dataList>
+							</p:column>
+							<p:column headerText="Estado">
+								<p:outputLabel
+									value="#{o.state eq '1' ? 'EMITIDO' : 'ANULADO'}" />
+							</p:column>
+						</p:dataTable>
+					</p:tab>
+
+				</p:tabView>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+
+</body>
+</html>

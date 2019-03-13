@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head></h:head>
+<body>
+
+	<ui:composition template="/WEB-INF/templates/master.xhtml">
+		<ui:define name="content">
+			<h:form id="frmGen">
+				<p:growl id="menGen" />
+				<p:toolbar>
+					<f:facet name="right">
+						<p:commandButton value="Nuevo" icon="ui-icon-document"
+							actionListener="#{productTypeController.resetForm()}"
+							update="@form" />
+						<p:commandButton value="Guardar" icon="ui-icon-disk"
+							process="@this :frmGen:panGriTipPro"
+							actionListener="#{productTypeController.saveProductType()}"
+							update=":frmGen:menGen :frmGen:datTabTipPro :frmGen:panGriTipPro" />
+						<!-- <span class="ui-separator"> <span
+							class="ui-icon ui-icon-grip-dotted-vertical" />
+						</span> -->
+						<p:commandButton value="Editar" icon="ui-icon-pencil"
+							process="@this"
+							actionListener="#{productTypeController.editProductType()}"
+							update=":frmGen:menGen :frmGen:panGriTipPro" />
+						<!-- <p:commandButton value="Eliminar" icon="ui-icon-trash"
+							onclick="PF('diaConTipPro').show();" /> -->
+					</f:facet>
+				</p:toolbar>
+				<p:panelGrid id="panGriTipPro" columns="2" style="width:100%">
+					<p:outputLabel value="Nombre:" for="txtNomTipPro" />
+					<p:inputText id="txtNomTipPro" required="true" maxlength="45"
+						value="#{productTypeController.typeProduct.name}" />
+					<p:outputLabel value="Descripción:" for="txaDesTipPro" />
+					<p:inputTextarea id="txaDesTipPro" required="true" maxlength="200"
+						rows="4" cols="80"
+						value="#{productTypeController.typeProduct.description}" />
+				</p:panelGrid>
+				<br></br>
+				
+				<p:panelGrid id="panGriBusProdTy" columns="3" style="width:100%">
+							<p:outputLabel value="Buscar Por:" for="txtBusPor" />
+							<p:inputText id="txtBusPor" value="#{productTypeController.filter}" />
+							<p:commandButton icon="ui-icon-search"
+								process="@this :frmGen:panGriBusProdTy"
+								actionListener="#{productTypeController.filterProductType()}"
+								update=":frmGen:menGen :frmGen:datTabTipPro :frmGen:panGriBusProdTy" />
+				</p:panelGrid>
+				<br></br>
+				
+				<p:dataTable id="datTabTipPro"
+					emptyMessage="No existen tipo de productos registrados"
+					value="#{productTypeController.listTypeProduct}" var="tp"
+					paginator="true" rows="10" selectionMode="single" rowKey="#{tp.id}">
+					<f:facet name="header">
+						<p:outputLabel value="Lista de Tipo de Productos" />
+					</f:facet>
+					<p:ajax event="rowSelect"
+						listener="#{productTypeController.selecProductType}" />
+					<p:column headerText="Id">
+						<p:outputLabel value="#{tp.id}" />
+					</p:column>
+					<p:column headerText="Nombre">
+						<p:outputLabel value="#{tp.name}" />
+					</p:column>
+					<p:column headerText="Descripción">
+						<p:outputLabel value="#{tp.description}" />
+					</p:column>
+				</p:dataTable>
+				<!-- <p:dialog widgetVar="diaConTipPro" header="Confirmación Eliminación"
+					width="200" height="100">
+					<p:panelGrid columns="3">
+						<p:outputLabel value="Está seguro de eliminar el registro?" />
+						<p:commandButton value="Si" process="@this"
+							actionListener="#{productTypeController.deleteProductType()}"
+							update=":frmGen:menGen :frmGen:datTabTipPro"
+							oncomplete="PF('diaConTipPro').hide();" />
+						<p:commandButton value="No" onclick="PF('diaConTipPro').hide();" />
+					</p:panelGrid>
+				</p:dialog> -->
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>
